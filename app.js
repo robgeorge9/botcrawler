@@ -9,13 +9,12 @@ let linksFound = [];
 let wordsFound = [];
 let term = 'Atlas';
 
-// Check Page Name
+// Display Page Name & Term
 console.log('Page:', page)
 console.log('Term:', term);
 
-// Request the page
+// Initialize the check of the page and run the crawl
 request(page, (err, res, body,) => {
-    // Check the Response
     if (res.statusCode === 200) {
         let bodyHTML = cheerio.load(body);
         links(bodyHTML);
@@ -25,6 +24,7 @@ request(page, (err, res, body,) => {
     }
 })
 
+// Check the body response for the text
 const searchTerm = (bodyText, term) => {
     let textSearch = bodyText('html > body').text();
     if (textSearch && textSearch.indexOf(term) !== -1) {
@@ -34,6 +34,7 @@ const searchTerm = (bodyText, term) => {
     }
 }
 
+// Find all of the links on the page and store in an array
 const links = (bodyText) => {
     var linkTag = bodyText("a[href^='/']");
     linkTag.each(function () {
@@ -43,11 +44,11 @@ const links = (bodyText) => {
     console.log(`Found ${linksFound.length} links`);
 }
 
+// Loop through the linksFound array and check if the term is found on the page. If it is, add that page to the wordsFound array.
 const linkFilter = (index) => {
     let nextPage = linksFound[index];
     let fullpath = page + nextPage;
     request(fullpath, (err, res, body) => {
-        // Check the Response
         if (res.statusCode === 200) {
             let bodyHTML = cheerio.load(body);
             if (searchTerm(bodyHTML, term)) {
